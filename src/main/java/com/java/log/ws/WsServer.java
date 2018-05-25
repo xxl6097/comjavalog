@@ -1,5 +1,6 @@
 package com.java.log.ws;
 
+import com.java.log.util.FileUtil;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -47,6 +48,10 @@ public class WsServer extends WebSocketServer {
 
         if (wsThread!=null){
             wsThread.close();
+        }
+
+        if (logFile!=null&&!logFile.equals("")){
+            FileUtil.delete(logFile);
         }
     }
 
