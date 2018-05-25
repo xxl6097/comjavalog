@@ -112,9 +112,7 @@ public class WsServer extends WebSocketServer {
     private void userJoin(WebSocket conn, String userName) {
         System.out.println("## userJoin userName" + conn.getRemoteSocketAddress().toString());
         WsPool.addUser(userName, conn);
-        if (wsThread == null){
             readLog();
-        }
     }
 
 
@@ -130,6 +128,12 @@ public class WsServer extends WebSocketServer {
 
     public void readLog() {
         try {
+            if (process!=null){
+                process.destroy();
+            }
+            if (inputStream!=null){
+                inputStream.close();
+            }
             // 执行tail -f命令
 //            process = Runtime.getRuntime().exec("tail -f /var/log/syslog");
             process = Runtime.getRuntime().exec("tail -f " + logFile);
