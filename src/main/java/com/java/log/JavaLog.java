@@ -10,6 +10,10 @@ public class JavaLog {
     public static  WebServerImpl webServer;
     private static WsServer wsServer;
     public static void startLog(int port){
+        startLog(port,null);
+    }
+
+    public static void startLog(int port,String logFilePath){
         try {
             webServer = new WebServerImpl(port);
             webServer.start();
@@ -19,7 +23,7 @@ public class JavaLog {
             e.printStackTrace();
         }
 
-        wsServer = new WsServer(8125);
+        wsServer = new WsServer(8125,logFilePath);
         wsServer.start();
     }
 

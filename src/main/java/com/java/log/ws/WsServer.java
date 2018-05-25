@@ -5,11 +5,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 
 public class WsServer extends WebSocketServer {
@@ -20,15 +16,22 @@ public class WsServer extends WebSocketServer {
     private WsThread wsThread;
     private PrintStream ps;
 
-    public WsServer(int port) {
+    public WsServer(int port,String logFilePath) {
         super(new InetSocketAddress(port));
-        logFile = System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log";
+        if (logFilePath==null||logFilePath.equals("")){
+            logFilePath = System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log";
+        }
+        this.logFile = logFilePath;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 SaveInFile();
             }
         }).start();
+    }
+
+    public WsServer(int port) {
+        this(port,System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log");
     }
 
     public void release(){
