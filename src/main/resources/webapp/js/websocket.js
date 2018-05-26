@@ -67,6 +67,19 @@ window.onbeforeunload = function () {
     }
 };
 
+function stop() {
+    try {
+        socket.close();
+        socket = null;
+    } catch (ex) {
+    }
+}
+
+function stopTest() {
+    var data = 'stoptest';
+    socket.send(data);
+}
+
 function getId(id) {
     return document.getElementById(id);
 }

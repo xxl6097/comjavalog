@@ -22,6 +22,7 @@ public class WsThread extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("error "+(e==null?"":e.getMessage()));
         }
     }
 

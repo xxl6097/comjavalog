@@ -1,5 +1,6 @@
 package com.java.log.ws;
 
+import com.java.log.Main;
 import com.java.log.util.FileUtil;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -16,9 +17,9 @@ public class WsServer extends WebSocketServer {
     private WsThread wsThread;
     private PrintStream ps;
 
-    public WsServer(int port,String logFilePath) {
+    public WsServer(int port, String logFilePath) {
         super(new InetSocketAddress(port));
-        if (logFilePath==null||logFilePath.equals("")){
+        if (logFilePath == null || logFilePath.equals("")) {
             logFilePath = System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log";
         }
         this.logFile = logFilePath;
@@ -31,14 +32,14 @@ public class WsServer extends WebSocketServer {
     }
 
     public WsServer(int port) {
-        this(port,System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log");
+        this(port, System.getProperty("java.io.tmpdir") + File.separator + System.getProperty("sun.java.command") + ".log");
     }
 
-    public void release(){
-        if (ps!=null){
+    public void release() {
+        if (ps != null) {
             ps.close();
         }
-        if (process!=null){
+        if (process != null) {
             process.destroy();
         }
         try {
@@ -49,11 +50,11 @@ public class WsServer extends WebSocketServer {
             e.printStackTrace();
         }
 
-        if (wsThread!=null){
+        if (wsThread != null) {
             wsThread.close();
         }
 
-        if (logFile!=null&&!logFile.equals("")){
+        if (logFile != null && !logFile.equals("")) {
             FileUtil.delete(logFile);
         }
     }
@@ -64,14 +65,14 @@ public class WsServer extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        userJoin(conn,conn.getRemoteSocketAddress().getHostName());
+        userJoin(conn, conn.getRemoteSocketAddress().getHostName());
         // ws连接的时候触发的代码，onOpen中我们不做任何操作
     }
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         //断开连接时候触发代码
-        System.out.println(reason);
+        System.out.println("## userLeave " + conn.getRemoteSocketAddress().getHostName() +" reason:"+reason);
         userLeave(conn);
     }
 
@@ -83,6 +84,8 @@ public class WsServer extends WebSocketServer {
             userJoin(conn, userName);//用户加入
         } else if (null != message && message.startsWith("offline")) {
             userLeave(conn);
+        }else if (null != message && message.startsWith("stoptest")){
+            Main.testThread.interrupt();
         }
 
     }
@@ -110,9 +113,9 @@ public class WsServer extends WebSocketServer {
      * @param userName
      */
     private void userJoin(WebSocket conn, String userName) {
-        System.out.println("## userJoin userName" + conn.getRemoteSocketAddress().toString());
+        System.out.println("## userJoin " + userName);
         WsPool.addUser(userName, conn);
-            readLog();
+        readLog();
     }
 
 
@@ -124,14 +127,17 @@ public class WsServer extends WebSocketServer {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        System.out.println("文件生成路径：" + logFile);
     }
 
     public void readLog() {
+        if (wsThread!=null)
+            return;
         try {
-            if (process!=null){
+            if (process != null) {
                 process.destroy();
             }
-            if (inputStream!=null){
+            if (inputStream != null) {
                 inputStream.close();
             }
             // 执行tail -f命令
@@ -145,7 +151,6 @@ public class WsServer extends WebSocketServer {
             e.printStackTrace();
         }
     }
-
 
 
 }
